@@ -108,9 +108,17 @@ body {
   color: #fff;
   text-shadow: 0 0 24px rgba(255, 180, 90, 0.55), 0 0 48px rgba(255,150,60,0.35);
 }
+.hero__title--img { margin: 0.4rem 0 0; line-height: 0; }
+.hero__title--img img {
+  width: min(80vw, 480px);
+  height: auto;
+  filter:
+    drop-shadow(0 0 22px rgba(255, 180, 90, 0.55))
+    drop-shadow(0 0 46px rgba(255, 150, 60, 0.35));
+}
 .hero__subtitle {
   color: var(--ink-soft);
-  margin: 0.8rem auto 1.8rem;
+  margin: 1rem auto 1.8rem;
   max-width: 32rem;
 }
 
