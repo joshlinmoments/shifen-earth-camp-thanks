@@ -118,8 +118,14 @@ body {
 }
 .hero__subtitle {
   color: var(--ink-soft);
-  margin: 1rem auto 1.8rem;
-  max-width: 32rem;
+  margin: 1rem auto 0;
+  max-width: 34rem;
+}
+.hero__subtitle--call {
+  color: var(--amber-glow);
+  font-weight: 500;
+  margin: 0.9rem auto 1.8rem;
+  text-shadow: 0 0 18px rgba(255, 180, 90, 0.35);
 }
 
 /* ---------- Tabs ---------- */
