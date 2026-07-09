@@ -4,7 +4,8 @@
 
 - **風格**：十分天燈 · 溫馨夜空
 - **前端**：純 HTML / CSS / JS（無框架），部署於 GitHub Pages
-- **後端**：Firebase Firestore（留言）+ Storage（照片）
+- **後端**：Firebase Firestore（留言）。使用免費 Spark 方案即可，無需 Storage / Blaze。
+  - 照片功能目前未啟用（新專案的 Storage 需 Blaze 付費方案）。日後如要加照片，可改用「前端壓縮存進 Firestore」或升級 Blaze。
 
 ## 檔案結構
 
@@ -20,12 +21,12 @@
 ## Firebase 設定教學（約 3 分鐘）
 
 1. 前往 [Firebase Console](https://console.firebase.google.com/) → **新增專案** → 取名例如 `shifen-earth-camp` →（可關閉 Analytics）→ 建立。
-2. 左側 **建構 Build → Firestore Database → 建立資料庫** → 選「**以正式版模式啟動**」→ 地區選 `asia-east1`（台灣）。
-3. 左側 **建構 Build → Storage → 開始使用** → 同樣選 `asia-east1`。
-4. 進入 **Firestore → 規則(Rules)**，貼上 `firestore.rules` 的內容 → 發布。
-5. 進入 **Storage → 規則(Rules)**，貼上 `storage.rules` 的內容 → 發布。
-6. 專案總覽（齒輪 → 專案設定）→ 下方「你的應用程式」→ 點 **`</>`（網頁）** → 註冊 App → 複製 `firebaseConfig` 物件。
-7. 把複製到的值貼進本專案 `firebase-config.js` 最上方的 `firebaseConfig`。
+2. 左側 **Databases & Storage → Firestore Database → 建立資料庫** → 選「**以正式版模式啟動**」→ 地區選 `asia-east1`（台灣）。
+3. 進入 **Firestore → 規則(Rules)**，貼上 `firestore.rules` 的內容 → 發布。
+4. 專案設定（齒輪 → Project settings）→ 下方「你的應用程式」→ 點 **`</>`（網頁）** → 註冊 App → 複製 `firebaseConfig` 物件。
+5. 把複製到的值貼進本專案 `firebase-config.js` 最上方的 `firebaseConfig`。
+
+> Storage 步驟已省略（照片功能未啟用）。`storage.rules` 保留備用，日後啟用照片再套。
 
 完成後，直接把整個資料夾推上 GitHub 並開啟 Pages 即可。
 

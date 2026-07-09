@@ -6,17 +6,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const CONFIGURED = !firebaseConfig.apiKey.startsWith("REPLACE_ME");
 
-let db, storage;
+let db;
 if (CONFIGURED) {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-  storage = getStorage(app);
 }
 
 // ---------- 夜空背景 ----------
@@ -92,20 +88,6 @@ const messageEl = document.getElementById("message");
 const msgCount = document.getElementById("msg-count");
 messageEl.addEventListener("input", () => { msgCount.textContent = messageEl.value.length; });
 
-// ---------- 照片預覽 ----------
-const photoInput = document.getElementById("photo");
-const photoBtn = document.getElementById("photo-btn");
-const photoName = document.getElementById("photo-name");
-const photoPreview = document.getElementById("photo-preview");
-photoBtn.addEventListener("click", () => photoInput.click());
-photoInput.addEventListener("change", () => {
-  const f = photoInput.files[0];
-  if (!f) { photoName.textContent = "尚未選擇"; photoPreview.hidden = true; return; }
-  photoName.textContent = f.name;
-  photoPreview.src = URL.createObjectURL(f);
-  photoPreview.hidden = false;
-});
-
 // ---------- 送出感謝 ----------
 const form = document.getElementById("thank-form");
 const submitBtn = document.getElementById("submit-btn");
@@ -143,28 +125,17 @@ form.addEventListener("submit", async (e) => {
   setStatus("🏮 正在放天燈…", "");
 
   try {
-    let photoUrl = "";
-    const file = photoInput.files[0];
-    if (file) {
-      setStatus("📷 上傳照片中…", "");
-      const path = `photos/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${file.name}`;
-      const snap = await uploadBytes(storageRef(storage, path), file);
-      photoUrl = await getDownloadURL(snap.ref);
-    }
-
     await addDoc(collection(db, "messages"), {
       to,
       from,
       anonymous: isAnon,
       message,
-      photoUrl,
+      photoUrl: "",
       createdAt: serverTimestamp(),
     });
 
     form.reset();
     msgCount.textContent = "0";
-    photoName.textContent = "尚未選擇";
-    photoPreview.hidden = true;
     toCustomField.hidden = true;
     fromInput.disabled = false;
     setStatus("✨ 感謝已送出，你的天燈正在升空！", "ok");
