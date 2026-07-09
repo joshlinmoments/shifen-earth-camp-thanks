@@ -344,7 +344,8 @@ select.input option { background: #1a1b3a; color: var(--ink); }
   position: absolute;
   top: -12px; left: 16px;
   font-size: 1.4rem;
-  filter: drop-shadow(0 0 8px rgba(255,160,70,0.7));
+  /* 用 text-shadow 而非 filter，避免 Safari 在 backdrop-filter 上疊 filter 產生灰色模糊方塊 */
+  text-shadow: 0 0 8px rgba(255, 160, 70, 0.7);
 }
 .note__to {
   font-family: "Noto Serif TC", serif;
