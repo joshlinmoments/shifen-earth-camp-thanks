@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>永續十分地球營 · 感謝告白牆</title>
+  <meta name="description" content="永續十分地球營工作人員的感謝告白牆 — 讓每一份心意隨天燈升空。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AE%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- 夜空背景：星星 + 漂浮天燈（JS 生成） -->
+  <div id="sky" aria-hidden="true"></div>
+
+  <header class="hero">
+    <p class="hero__eyebrow">永續十分地球營 · 2026</p>
+    <h1 class="hero__title">感謝告白牆</h1>
+    <p class="hero__subtitle">把想說的謝謝，寫進一盞天燈，讓它為你升空 🏮</p>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-view="wall" role="tab">🏮 感謝牆</button>
+      <button class="tab" data-view="write" role="tab">✍️ 寫一則感謝</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- ============ 寫感謝 ============ -->
+    <section id="view-write" class="view" hidden>
+      <form id="thank-form" class="card form" autocomplete="off">
+        <h2 class="form__heading">寫一則感謝</h2>
+
+        <label class="field">
+          <span class="field__label">要感謝誰？ <span class="req">*</span></span>
+          <select id="to-select" class="input" required>
+            <option value="" disabled selected>— 請選擇對象 —</option>
+          </select>
+        </label>
+
+        <label class="field" id="to-custom-field" hidden>
+          <span class="field__label">對象姓名</span>
+          <input type="text" id="to-custom" class="input" placeholder="輸入對方的名字" maxlength="30" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">想說的話 <span class="req">*</span></span>
+          <textarea id="message" class="input" rows="4" required maxlength="500" placeholder="謝謝你在營隊裡的付出…"></textarea>
+          <span class="counter"><span id="msg-count">0</span>/500</span>
+        </label>
+
+        <div class="field field--sender">
+          <span class="field__label">你的署名</span>
+          <input type="text" id="from" class="input" placeholder="你的名字" maxlength="30" />
+          <label class="checkbox">
+            <input type="checkbox" id="anon" />
+            <span>匿名發送（不顯示我的名字）</span>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label">附上一張照片（選填）</span>
+          <div class="upload">
+            <input type="file" id="photo" accept="image/*" hidden />
+            <button type="button" id="photo-btn" class="upload__btn">📷 選擇照片</button>
+            <span id="photo-name" class="upload__name">尚未選擇</span>
+          </div>
+          <img id="photo-preview" class="upload__preview" alt="預覽" hidden />
+        </label>
+
+        <button type="submit" id="submit-btn" class="btn-primary">🏮 放上天燈，送出感謝</button>
+        <p id="form-status" class="form__status" role="status"></p>
+      </form>
+    </section>
+
+    <!-- ============ 感謝牆 ============ -->
+    <section id="view-wall" class="view">
+      <div class="wall__bar">
+        <div class="wall__stat"><span id="count">0</span> 則感謝正在天空中飄揚</div>
+        <label class="wall__filter">
+          <span>篩選對象</span>
+          <select id="filter-select" class="input input--sm">
+            <option value="">全部</option>
+          </select>
+        </label>
+      </div>
+      <div id="wall" class="wall"></div>
+      <p id="wall-empty" class="wall__empty" hidden>還沒有人放天燈，成為第一個送出感謝的人吧 ✨</p>
+      <p id="wall-loading" class="wall__empty">✨ 正在點亮天燈…</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>永續十分地球營 · 感謝告白牆　｜　願每一份心意都隨燈升空</p>
+  </footer>
+
+  <!-- 放大檢視照片 -->
+  <div id="lightbox" class="lightbox" hidden>
+    <img id="lightbox-img" alt="放大照片" />
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
