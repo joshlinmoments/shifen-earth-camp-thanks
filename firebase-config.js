@@ -5,12 +5,12 @@
 // ============================================================
 
 export const firebaseConfig = {
-  apiKey: "REPLACE_ME_API_KEY",
-  authDomain: "REPLACE_ME.firebaseapp.com",
-  projectId: "REPLACE_ME_PROJECT_ID",
-  storageBucket: "REPLACE_ME.appspot.com",
-  messagingSenderId: "REPLACE_ME_SENDER_ID",
-  appId: "REPLACE_ME_APP_ID",
+  apiKey: "AIzaSyAXNlMVIqRDujBIjMInb76zVFA2qMwzqGA",
+  authDomain: "shifen-earth-camp.firebaseapp.com",
+  projectId: "shifen-earth-camp",
+  storageBucket: "shifen-earth-camp.firebasestorage.app",
+  messagingSenderId: "583965678863",
+  appId: "1:583965678863:web:ace7698e750c9a16ca327a",
 };
 
 // ============================================================
