@@ -192,6 +192,12 @@ body {
   font-weight: 500;
 }
 .req { color: var(--amber-deep); }
+.field__hint {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
 .input {
   width: 100%;
   padding: 0.75rem 0.9rem;
@@ -285,7 +291,35 @@ select.input option { background: #1a1b3a; color: var(--ink); }
 }
 .wall__stat { color: var(--amber-glow); font-weight: 500; }
 .wall__stat span { font-size: 1.4rem; font-weight: 700; }
-.wall__filter { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--ink-soft); }
+
+/* 分層搜尋（職務 → 姓名） */
+.wall__search {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.8rem;
+  margin-bottom: 1.3rem;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+}
+.wall__search-label { font-size: 0.9rem; color: var(--amber-glow); font-weight: 500; white-space: nowrap; }
+.wall__search-selects { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.wall__search-selects .input--sm { min-width: 8rem; }
+.wall__search-arrow { color: var(--ink-soft); font-size: 1.1rem; }
+.wall__search-reset {
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.wall__search-reset:hover { color: var(--amber-glow); border-color: var(--amber); }
 .wall {
   columns: 2;
   column-gap: 1rem;
@@ -320,6 +354,18 @@ select.input option { background: #1a1b3a; color: var(--ink); }
   margin: 0.4rem 0 0.1rem;
 }
 .note__to small { font-weight: 400; color: var(--ink-soft); font-size: 0.8rem; }
+.note__tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--amber-deep);
+  background: rgba(255, 160, 70, 0.16);
+  border: 1px solid rgba(255, 160, 70, 0.35);
+  border-radius: 999px;
+  vertical-align: middle;
+}
 .note__msg { color: var(--ink); margin: 0.5rem 0 0.7rem; white-space: pre-wrap; word-break: break-word; }
 .note__photo {
   width: 100%;

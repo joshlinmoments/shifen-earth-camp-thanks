@@ -54,19 +54,51 @@ tabs.forEach((t) => t.addEventListener("click", () => {
   views.write.hidden = v !== "write";
 }));
 
-// ---------- 建立名單下拉選單 ----------
+// ---------- 依職務整理名單 ----------
+// roleOrder：職務出現順序；roleMembers：每個職務的成員（含原始 index）
+const roleOrder = [];
+const roleMembers = {};
+STAFF_LIST.forEach((p, i) => {
+  if (!roleMembers[p.role]) { roleMembers[p.role] = []; roleOrder.push(p.role); }
+  roleMembers[p.role].push({ ...p, idx: i });
+});
+
+// 群組（職務）顯示名稱
+const GROUP_LABEL = {
+  "老師": "老師們", "總召": "總召們", "活動長": "活動長們",
+  "授課老師": "授課老師們", "隊輔": "隊輔們", "生活組": "生活組夥伴", "音控": "音控",
+};
+const groupName = (role) => GROUP_LABEL[role] || role + "們";
+
+const ALL_LABEL = "全體夥伴們";
+
+// ---------- 建立「告白對象」下拉選單 ----------
 const toSelect = document.getElementById("to-select");
-const filterSelect = document.getElementById("filter-select");
 const toCustomField = document.getElementById("to-custom-field");
 const toCustom = document.getElementById("to-custom");
 
-STAFF_LIST.forEach((p, i) => {
-  const label = `${p.role} · ${p.name}${p.nick ? "（" + p.nick + "）" : ""}`;
-  const shown = displayName(p);
-  // 選單 value 存「留言牆顯示名稱」，方便直接使用
-  toSelect.appendChild(new Option(label, `staff:${i}`));
-  filterSelect.appendChild(new Option(shown, shown));
+// 群組區：全體 + 各職務（2 人以上才成群）
+const groupOptg = document.createElement("optgroup");
+groupOptg.label = "👥 寫給一整群";
+groupOptg.appendChild(new Option("🌏 " + ALL_LABEL, "all"));
+roleOrder.forEach((role) => {
+  if (roleMembers[role].length >= 2) {
+    groupOptg.appendChild(new Option(groupName(role), `group:${role}`));
+  }
 });
+toSelect.appendChild(groupOptg);
+
+// 個人區：依職務分組
+roleOrder.forEach((role) => {
+  const og = document.createElement("optgroup");
+  og.label = role;
+  roleMembers[role].forEach((p) => {
+    const label = `${p.name}${p.nick ? "（" + p.nick + "）" : ""}`;
+    og.appendChild(new Option(label, `staff:${p.idx}`));
+  });
+  toSelect.appendChild(og);
+});
+
 toSelect.appendChild(new Option("✏️ 其他（自行輸入）", "custom"));
 
 toSelect.addEventListener("change", () => {
@@ -101,14 +133,20 @@ function setStatus(msg, kind) {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // 解析對象
-  let to = "";
-  if (toSelect.value === "custom") {
-    to = toCustom.value.trim();
-  } else if (toSelect.value.startsWith("staff:")) {
-    to = displayName(STAFF_LIST[Number(toSelect.value.split(":")[1])]);
+  // 解析對象：個人 / 職務群組 / 全體 / 自行輸入
+  let to = "", toType = "", toRole = "";
+  const v = toSelect.value;
+  if (v === "all") {
+    toType = "all"; to = ALL_LABEL;
+  } else if (v.startsWith("group:")) {
+    toType = "group"; toRole = v.slice(6); to = groupName(toRole);
+  } else if (v.startsWith("staff:")) {
+    const p = STAFF_LIST[Number(v.split(":")[1])];
+    toType = "person"; toRole = p.role; to = displayName(p);
+  } else if (v === "custom") {
+    toType = "custom"; to = toCustom.value.trim();
   }
-  if (!to) { setStatus("請選擇或輸入感謝的對象 🙏", "err"); return; }
+  if (!to) { setStatus("請選擇或輸入告白的對象 🙏", "err"); return; }
 
   const message = messageEl.value.trim();
   if (!message) { setStatus("寫幾句想說的話吧 ✍️", "err"); return; }
@@ -127,6 +165,8 @@ form.addEventListener("submit", async (e) => {
   try {
     await addDoc(collection(db, "messages"), {
       to,
+      toType,
+      toRole,
       from,
       anonymous: isAnon,
       message,
@@ -138,8 +178,8 @@ form.addEventListener("submit", async (e) => {
     msgCount.textContent = "0";
     toCustomField.hidden = true;
     fromInput.disabled = false;
-    setStatus("✨ 感謝已送出，你的天燈正在升空！", "ok");
-    // 自動切到感謝牆
+    setStatus("✨ 告白已送出，你的天燈正在升空！", "ok");
+    // 自動切到告白牆
     document.querySelector('.tab[data-view="wall"]').click();
   } catch (err) {
     console.error(err);
@@ -149,12 +189,66 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// ---------- 感謝牆即時載入 ----------
+// ---------- 告白牆即時載入 ----------
 const wall = document.getElementById("wall");
 const wallEmpty = document.getElementById("wall-empty");
 const wallLoading = document.getElementById("wall-loading");
 const countEl = document.getElementById("count");
 let allDocs = [];
+
+// ---------- 分層搜尋（職務 → 姓名） ----------
+const filterRole = document.getElementById("filter-role");
+const filterName = document.getElementById("filter-name");
+const filterReset = document.getElementById("filter-reset");
+
+roleOrder.forEach((role) => filterRole.appendChild(new Option(role, role)));
+
+// 第二層：依所選職務動態列出成員（用綽號/顯示名稱）
+filterRole.addEventListener("change", () => {
+  const R = filterRole.value;
+  filterName.innerHTML = "";
+  if (!R) {
+    filterName.appendChild(new Option("全部", ""));
+    filterName.disabled = true;
+  } else {
+    filterName.appendChild(new Option("全部（此職務）", ""));
+    roleMembers[R].forEach((p) => filterName.appendChild(new Option(displayName(p), displayName(p))));
+    filterName.disabled = false;
+  }
+  updateResetVisibility();
+  render();
+});
+filterName.addEventListener("change", () => { updateResetVisibility(); render(); });
+filterReset.addEventListener("click", () => {
+  filterRole.value = "";
+  filterRole.dispatchEvent(new Event("change"));
+});
+
+function updateResetVisibility() {
+  filterReset.hidden = !filterRole.value && !filterName.value;
+}
+
+// 顯示名稱 → 職務對照（供沒有 toRole 的舊訊息推斷職務）
+const nameToRole = {};
+STAFF_LIST.forEach((p) => { nameToRole[displayName(p)] = p.role; });
+
+// 判斷某則告白是否符合目前的搜尋條件
+function matchFilter(d) {
+  const R = filterRole.value;   // 職務；"" = 全部職務
+  const P = filterName.value;   // 姓名（顯示名稱）；"" = 此職務全部
+  if (!R) return true;
+  // 向下相容舊訊息（沒有 toType）：視為個人告白，用 to 反查職務
+  const type = d.toType || "person";
+  const role = d.toRole || nameToRole[d.to] || "";
+  if (P) {
+    // 找特定某人：本人的告白 + 該職務群組告白 + 全體告白
+    return (type === "person" && d.to === P)
+      || (type === "group" && role === R)
+      || (type === "all");
+  }
+  // 只選職務：該職務所有人 + 該職務群組 + 全體
+  return role === R || type === "all";
+}
 
 function fmtTime(ts) {
   if (!ts) return "";
@@ -167,22 +261,28 @@ function esc(s) {
 }
 
 function render() {
-  const filter = filterSelect.value;
-  const list = filter ? allDocs.filter((d) => d.to === filter) : allDocs;
+  const list = allDocs.filter(matchFilter);
   countEl.textContent = allDocs.length;
   wall.innerHTML = "";
   wallLoading.hidden = true;
   wallEmpty.hidden = list.length !== 0;
+  wallEmpty.textContent = (filterRole.value || filterName.value)
+    ? "這個對象還沒收到告白，換個人看看，或成為第一個告白的人吧 ✨"
+    : "還沒有人放天燈，成為第一個送出告白的人吧 ✨";
 
   for (const d of list) {
     const el = document.createElement("article");
     el.className = "note";
     const fromLabel = d.anonymous || !d.from ? "一位神秘的夥伴" : esc(d.from);
+    const toIcon = d.toType === "all" ? "🌏 " : d.toType === "group" ? "👥 " : "";
+    const tag = d.toType === "all"
+      ? '<span class="note__tag">全體</span>'
+      : d.toType === "group" ? '<span class="note__tag">一整群</span>' : "";
     const photo = d.photoUrl
-      ? `<img class="note__photo" src="${esc(d.photoUrl)}" alt="感謝照片" loading="lazy" />`
+      ? `<img class="note__photo" src="${esc(d.photoUrl)}" alt="告白照片" loading="lazy" />`
       : "";
     el.innerHTML = `
-      <p class="note__to"><small>致</small> ${esc(d.to)}</p>
+      <p class="note__to"><small>致</small> ${toIcon}${esc(d.to)}${tag}</p>
       <p class="note__msg">${esc(d.message)}</p>
       ${photo}
       <div class="note__foot">
@@ -192,8 +292,6 @@ function render() {
     wall.appendChild(el);
   }
 }
-
-filterSelect.addEventListener("change", render);
 
 if (CONFIGURED) {
   const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));

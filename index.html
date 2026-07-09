@@ -16,7 +16,7 @@
   <div id="sky" aria-hidden="true"></div>
 
   <header class="hero">
-    <p class="hero__eyebrow">2026 · 感謝告白牆</p>
+    <p class="hero__eyebrow">2026 · 告白牆</p>
     <h1 class="hero__title hero__title--img">
       <img src="assets/title-logo.png" alt="告白十分地球營" />
     </h1>
@@ -30,8 +30,8 @@
       就在這裡大聲地告白吧！🏮
     </p>
     <nav class="tabs" role="tablist">
-      <button class="tab is-active" data-view="wall" role="tab">🏮 感謝牆</button>
-      <button class="tab" data-view="write" role="tab">✍️ 寫一則感謝</button>
+      <button class="tab is-active" data-view="wall" role="tab">🏮 告白牆</button>
+      <button class="tab" data-view="write" role="tab">✍️ 寫一則告白</button>
     </nav>
   </header>
 
@@ -39,13 +39,14 @@
     <!-- ============ 寫感謝 ============ -->
     <section id="view-write" class="view" hidden>
       <form id="thank-form" class="card form" autocomplete="off">
-        <h2 class="form__heading">寫一則感謝</h2>
+        <h2 class="form__heading">寫一則告白</h2>
 
         <label class="field">
-          <span class="field__label">要感謝誰？ <span class="req">*</span></span>
+          <span class="field__label">要告白給誰？ <span class="req">*</span></span>
           <select id="to-select" class="input" required>
             <option value="" disabled selected>— 請選擇對象 —</option>
           </select>
+          <span class="field__hint">可以選一個人，也可以選「一整群」或「全體夥伴們」🏮</span>
         </label>
 
         <label class="field" id="to-custom-field" hidden>
@@ -55,7 +56,7 @@
 
         <label class="field">
           <span class="field__label">想說的話 <span class="req">*</span></span>
-          <textarea id="message" class="input" rows="4" required maxlength="500" placeholder="謝謝你在營隊裡的付出…"></textarea>
+          <textarea id="message" class="input" rows="4" required maxlength="500" placeholder="把來不及說的謝謝，在這裡大聲說出來…"></textarea>
           <span class="counter"><span id="msg-count">0</span>/500</span>
         </label>
 
@@ -68,30 +69,39 @@
           </label>
         </div>
 
-        <button type="submit" id="submit-btn" class="btn-primary">🏮 放上天燈，送出感謝</button>
+        <button type="submit" id="submit-btn" class="btn-primary">🏮 放上天燈，送出告白</button>
         <p id="form-status" class="form__status" role="status"></p>
       </form>
     </section>
 
-    <!-- ============ 感謝牆 ============ -->
+    <!-- ============ 告白牆 ============ -->
     <section id="view-wall" class="view">
       <div class="wall__bar">
-        <div class="wall__stat"><span id="count">0</span> 則感謝正在天空中飄揚</div>
-        <label class="wall__filter">
-          <span>篩選對象</span>
-          <select id="filter-select" class="input input--sm">
+        <div class="wall__stat"><span id="count">0</span> 則告白正在天空中飄揚</div>
+      </div>
+
+      <div class="wall__search">
+        <span class="wall__search-label">🔍 找找看寫給誰</span>
+        <div class="wall__search-selects">
+          <select id="filter-role" class="input input--sm" aria-label="選擇職務">
+            <option value="">全部職務</option>
+          </select>
+          <span class="wall__search-arrow">›</span>
+          <select id="filter-name" class="input input--sm" aria-label="選擇姓名" disabled>
             <option value="">全部</option>
           </select>
-        </label>
+          <button type="button" id="filter-reset" class="wall__search-reset" hidden>清除</button>
+        </div>
       </div>
+
       <div id="wall" class="wall"></div>
-      <p id="wall-empty" class="wall__empty" hidden>還沒有人放天燈，成為第一個送出感謝的人吧 ✨</p>
+      <p id="wall-empty" class="wall__empty" hidden>還沒有人放天燈，成為第一個送出告白的人吧 ✨</p>
       <p id="wall-loading" class="wall__empty">✨ 正在點亮天燈…</p>
     </section>
   </main>
 
   <footer class="footer">
-    <p>告白十分地球營 · 感謝告白牆　｜　願每一份心意都隨燈升空</p>
+    <p>告白十分地球營 · 告白牆　｜　願每一份心意都隨燈升空</p>
   </footer>
 
   <!-- 放大檢視照片 -->
