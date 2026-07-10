@@ -264,7 +264,7 @@ function esc(s) {
 }
 
 // ---------- 表情回饋 ----------
-const REACTIONS = ["❤️", "👍", "🥰", "🙏", "🏮"];
+const REACTIONS = ["❤️", "👍", "🥰", "🙏", "😂"];
 const reactKey = (id, e) => `react:${id}:${e}`;
 const hasReacted = (id, e) => localStorage.getItem(reactKey(id, e)) === "1";
 
