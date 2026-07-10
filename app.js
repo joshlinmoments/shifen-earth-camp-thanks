@@ -1,7 +1,7 @@
 // ============================================================
 //  永續十分地球營 · 感謝告白牆 — 前端邏輯
 // ============================================================
-import { firebaseConfig, STAFF_LIST, displayName } from "./firebase-config.js";
+import { firebaseConfig, STAFF_LIST, displayName } from "./firebase-config.js?v=12";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, addDoc, doc, updateDoc, increment,

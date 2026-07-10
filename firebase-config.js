@@ -40,6 +40,7 @@ export const STAFF_LIST = [
   { role: "隊輔",     name: "林育嫺", nick: "小魚" },
   { role: "隊輔",     name: "許皓勛", nick: "星星" },
   { role: "隊輔",     name: "伍海舜", nick: "珍奶" },
+  { role: "隊輔",     name: "簡薇容", nick: "Vicky" },
   { role: "生活組",   name: "林詩涵", nick: "海倫" },
   { role: "生活組",   name: "許家齊", nick: "" },
   { role: "生活組",   name: "張哲睿", nick: "帥哥" },
