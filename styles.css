@@ -391,6 +391,34 @@ select.input option { background: #1a1b3a; color: var(--ink); }
 .note { cursor: pointer; transition: transform 0.15s, box-shadow 0.2s; }
 .note:hover { transform: translateY(-3px); box-shadow: 0 16px 46px rgba(0, 0, 0, 0.5); }
 
+/* ---------- 表情回饋 ---------- */
+.reactions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+.react-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.2;
+  transition: transform 0.1s, background 0.2s, border-color 0.2s;
+}
+.react-btn:hover { transform: scale(1.09); background: rgba(255, 180, 90, 0.14); }
+.react-btn:active { transform: scale(0.96); }
+.react-btn.is-active { background: rgba(255, 160, 70, 0.22); border-color: var(--amber); }
+.react-emoji { font-size: 1.02rem; }
+.react-count { font-size: 0.8rem; color: var(--amber-glow); font-weight: 500; }
+
+/* present 內的表情較大、置中 */
+.present__reactions { margin-top: 1.2rem; }
+.present__reactions .reactions { justify-content: center; }
+.present__reactions .react-btn { padding: 0.35rem 0.75rem; }
+.present__reactions .react-emoji { font-size: 1.3rem; }
+.present__reactions .react-count { font-size: 0.9rem; }
+
 /* ---------- Present 模式（全螢幕單則展示） ---------- */
 .present {
   position: fixed;

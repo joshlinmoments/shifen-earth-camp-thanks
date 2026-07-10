@@ -15,7 +15,9 @@ service cloud.firestore {
         && request.resource.data.from.size() <= 40
         && request.resource.data.anonymous is bool
         && request.resource.data.photoUrl is string;
-      allow update, delete: if false;
+      // 只允許更新 reactions 欄位（表情回饋），不能改到留言內容
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions']);
+      allow delete: if false;
     }
   }
 }

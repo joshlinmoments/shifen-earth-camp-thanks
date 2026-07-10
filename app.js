@@ -4,7 +4,8 @@
 import { firebaseConfig, STAFF_LIST, displayName } from "./firebase-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp,
+  getFirestore, collection, addDoc, doc, updateDoc, increment,
+  query, orderBy, onSnapshot, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CONFIGURED = !firebaseConfig.apiKey.startsWith("REPLACE_ME");
@@ -262,6 +263,39 @@ function esc(s) {
   return (s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// ---------- 表情回饋 ----------
+const REACTIONS = ["❤️", "👍", "🥰", "🙏", "🏮"];
+const reactKey = (id, e) => `react:${id}:${e}`;
+const hasReacted = (id, e) => localStorage.getItem(reactKey(id, e)) === "1";
+
+function reactionsHTML(d) {
+  const r = d.reactions || {};
+  const btns = REACTIONS.map((e) => {
+    const c = Math.max(0, r[e] || 0);
+    const active = hasReacted(d.id, e) ? " is-active" : "";
+    return `<button type="button" class="react-btn${active}" data-emoji="${e}">`
+      + `<span class="react-emoji">${e}</span>${c ? `<span class="react-count">${c}</span>` : ""}</button>`;
+  }).join("");
+  return `<div class="reactions" data-id="${d.id}">${btns}</div>`;
+}
+
+async function toggleReaction(id, emoji) {
+  if (!CONFIGURED || !id) return;
+  const reacted = hasReacted(id, emoji);
+  const delta = reacted ? -1 : 1;
+  // 樂觀更新本機紀錄（避免重複計數、可收回）
+  if (reacted) localStorage.removeItem(reactKey(id, emoji));
+  else localStorage.setItem(reactKey(id, emoji), "1");
+  try {
+    await updateDoc(doc(db, "messages", id), { [`reactions.${emoji}`]: increment(delta) });
+  } catch (err) {
+    console.error(err);
+    // 失敗還原
+    if (reacted) localStorage.setItem(reactKey(id, emoji), "1");
+    else localStorage.removeItem(reactKey(id, emoji));
+  }
+}
+
 let renderedDocs = [];
 function render() {
   const list = allDocs.filter(matchFilter);
@@ -293,7 +327,8 @@ function render() {
       <div class="note__foot">
         <span class="note__from">— ${fromLabel}</span>
         <span>${fmtTime(d.createdAt)}</span>
-      </div>`;
+      </div>
+      ${reactionsHTML(d)}`;
     wall.appendChild(el);
   });
 }
@@ -301,8 +336,9 @@ function render() {
 if (CONFIGURED) {
   const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
   onSnapshot(q, (snap) => {
-    allDocs = snap.docs.map((doc) => doc.data());
+    allDocs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     render();
+    if (!present.hidden) refreshPresent();
   }, (err) => {
     console.error(err);
     wallLoading.textContent = "讀取失敗：" + err.message;
@@ -324,25 +360,39 @@ const pTotal = document.getElementById("present-total");
 const pPrev = document.getElementById("present-prev");
 const pNext = document.getElementById("present-next");
 const pClose = document.getElementById("present-close");
+const pReactions = document.getElementById("present-reactions");
 const pCard = present.querySelector(".present__card");
 
 let presentList = [];
 let presentIdx = 0;
+let presentId = null;
 
-function paintPresent() {
+function paintPresent(keepScroll) {
   const d = presentList[presentIdx];
   if (!d) return;
+  presentId = d.id;
   const toIcon = d.toType === "all" ? "🌏 " : d.toType === "group" ? "👥 " : "";
   pTo.textContent = toIcon + (d.to || "");
   pMsg.textContent = d.message || "";
   pFrom.textContent = "— " + (d.anonymous || !d.from ? "一位神秘的夥伴" : d.from);
   pTime.textContent = fmtTime(d.createdAt);
+  pReactions.innerHTML = reactionsHTML(d);
   pIndex.textContent = presentIdx + 1;
   pTotal.textContent = presentList.length;
   const single = presentList.length <= 1;
   pPrev.hidden = single;
   pNext.hidden = single;
-  pCard.scrollTop = 0;
+  if (!keepScroll) pCard.scrollTop = 0;
+}
+
+// 資料即時更新且 present 開啟時，就地刷新（保留捲動位置）
+function refreshPresent() {
+  presentList = renderedDocs.slice();
+  if (!presentList.length) { closePresent(); return; }
+  const i = presentList.findIndex((d) => d.id === presentId);
+  if (i >= 0) presentIdx = i;
+  else presentIdx = Math.min(presentIdx, presentList.length - 1);
+  paintPresent(true);
 }
 
 function openPresent(idx) {
@@ -365,8 +415,15 @@ function move(step) {
   paintPresent();
 }
 
-// 點卡片開啟
+// 點卡片：表情按鈕 → 回饋；其他區域 → 開啟 present
 wall.addEventListener("click", (e) => {
+  const rb = e.target.closest(".react-btn");
+  if (rb) {
+    e.stopPropagation();
+    const id = rb.closest(".reactions").dataset.id;
+    toggleReaction(id, rb.dataset.emoji);
+    return;
+  }
   const note = e.target.closest(".note");
   if (!note) return;
   openPresent(Number(note.dataset.index));
@@ -375,6 +432,11 @@ wall.addEventListener("click", (e) => {
 pPrev.addEventListener("click", () => move(-1));
 pNext.addEventListener("click", () => move(1));
 pClose.addEventListener("click", closePresent);
+// present 內的表情回饋
+pReactions.addEventListener("click", (e) => {
+  const rb = e.target.closest(".react-btn");
+  if (rb) toggleReaction(presentId, rb.dataset.emoji);
+});
 // 點卡片以外的背景區也可關閉
 present.addEventListener("click", (e) => {
   if (!e.target.closest(".present__card") && !e.target.closest(".present__controls")) closePresent();
