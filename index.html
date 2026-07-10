@@ -104,9 +104,35 @@
     <p>告白十分地球營 · 告白牆　｜　願每一份心意都隨燈升空</p>
   </footer>
 
-  <!-- 放大檢視照片 -->
-  <div id="lightbox" class="lightbox" hidden>
-    <img id="lightbox-img" alt="放大照片" />
+  <!-- Present 模式：單則全螢幕展示（適合截圖分享） -->
+  <div id="present" class="present" hidden aria-modal="true" role="dialog">
+    <div class="present__sky" aria-hidden="true"></div>
+
+    <header class="present__header">
+      <img class="present__logo" src="assets/title-logo.png" alt="告白十分地球營" />
+      <span class="present__brand">告白牆</span>
+    </header>
+
+    <div class="present__stage">
+      <article class="present__card">
+        <div class="present__lantern">🏮</div>
+        <p class="present__to"><small>致</small> <span id="present-to"></span></p>
+        <p class="present__msg" id="present-msg"></p>
+        <div class="present__foot">
+          <span class="present__from" id="present-from"></span>
+          <span class="present__time" id="present-time"></span>
+        </div>
+      </article>
+    </div>
+
+    <div class="present__controls">
+      <button type="button" id="present-prev" class="present__btn" aria-label="上一則">‹</button>
+      <div class="present__meta">
+        <span class="present__counter"><span id="present-index">1</span> / <span id="present-total">1</span></span>
+        <button type="button" id="present-close" class="present__close" aria-label="關閉">✕ 關閉</button>
+      </div>
+      <button type="button" id="present-next" class="present__btn" aria-label="下一則">›</button>
+    </div>
   </div>
 
   <script type="module" src="app.js"></script>

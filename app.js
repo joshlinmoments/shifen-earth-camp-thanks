@@ -260,8 +260,10 @@ function esc(s) {
   return (s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+let renderedDocs = [];
 function render() {
   const list = allDocs.filter(matchFilter);
+  renderedDocs = list;
   countEl.textContent = allDocs.length;
   wall.innerHTML = "";
   wallLoading.hidden = true;
@@ -270,9 +272,10 @@ function render() {
     ? "這個對象還沒收到告白，換個人看看，或成為第一個告白的人吧 ✨"
     : "還沒有人放天燈，成為第一個送出告白的人吧 ✨";
 
-  for (const d of list) {
+  list.forEach((d, i) => {
     const el = document.createElement("article");
     el.className = "note";
+    el.dataset.index = i;
     const fromLabel = d.anonymous || !d.from ? "一位神秘的夥伴" : esc(d.from);
     const toIcon = d.toType === "all" ? "🌏 " : d.toType === "group" ? "👥 " : "";
     const tag = d.toType === "all"
@@ -290,7 +293,7 @@ function render() {
         <span>${fmtTime(d.createdAt)}</span>
       </div>`;
     wall.appendChild(el);
-  }
+  });
 }
 
 if (CONFIGURED) {
@@ -308,13 +311,87 @@ if (CONFIGURED) {
   wallEmpty.textContent = "⚠️ 尚未設定 Firebase，設定完成後這裡就會顯示所有感謝。";
 }
 
-// ---------- Lightbox ----------
-const lightbox = document.getElementById("lightbox");
-const lightboxImg = document.getElementById("lightbox-img");
+// ---------- Present 模式（單則全螢幕展示） ----------
+const present = document.getElementById("present");
+const pTo = document.getElementById("present-to");
+const pMsg = document.getElementById("present-msg");
+const pFrom = document.getElementById("present-from");
+const pTime = document.getElementById("present-time");
+const pIndex = document.getElementById("present-index");
+const pTotal = document.getElementById("present-total");
+const pPrev = document.getElementById("present-prev");
+const pNext = document.getElementById("present-next");
+const pClose = document.getElementById("present-close");
+const pCard = present.querySelector(".present__card");
+
+let presentList = [];
+let presentIdx = 0;
+
+function paintPresent() {
+  const d = presentList[presentIdx];
+  if (!d) return;
+  const toIcon = d.toType === "all" ? "🌏 " : d.toType === "group" ? "👥 " : "";
+  pTo.textContent = toIcon + (d.to || "");
+  pMsg.textContent = d.message || "";
+  pFrom.textContent = "— " + (d.anonymous || !d.from ? "一位神秘的夥伴" : d.from);
+  pTime.textContent = fmtTime(d.createdAt);
+  pIndex.textContent = presentIdx + 1;
+  pTotal.textContent = presentList.length;
+  const single = presentList.length <= 1;
+  pPrev.hidden = single;
+  pNext.hidden = single;
+  pCard.scrollTop = 0;
+}
+
+function openPresent(idx) {
+  presentList = renderedDocs.slice();
+  presentIdx = Math.max(0, Math.min(idx, presentList.length - 1));
+  if (!presentList.length) return;
+  paintPresent();
+  present.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closePresent() {
+  present.hidden = true;
+  document.body.style.overflow = "";
+}
+
+function move(step) {
+  if (presentList.length <= 1) return;
+  presentIdx = (presentIdx + step + presentList.length) % presentList.length;
+  paintPresent();
+}
+
+// 點卡片開啟
 wall.addEventListener("click", (e) => {
-  if (e.target.classList.contains("note__photo")) {
-    lightboxImg.src = e.target.src;
-    lightbox.hidden = false;
-  }
+  const note = e.target.closest(".note");
+  if (!note) return;
+  openPresent(Number(note.dataset.index));
 });
-lightbox.addEventListener("click", () => { lightbox.hidden = true; lightboxImg.src = ""; });
+
+pPrev.addEventListener("click", () => move(-1));
+pNext.addEventListener("click", () => move(1));
+pClose.addEventListener("click", closePresent);
+// 點卡片以外的背景區也可關閉
+present.addEventListener("click", (e) => {
+  if (!e.target.closest(".present__card") && !e.target.closest(".present__controls")) closePresent();
+});
+
+// 鍵盤：← → 切換、Esc 關閉
+document.addEventListener("keydown", (e) => {
+  if (present.hidden) return;
+  if (e.key === "ArrowLeft") move(-1);
+  else if (e.key === "ArrowRight") move(1);
+  else if (e.key === "Escape") closePresent();
+});
+
+// 手機滑動切換
+let touchX = null;
+present.addEventListener("touchstart", (e) => { touchX = e.changedTouches[0].clientX; }, { passive: true });
+present.addEventListener("touchend", (e) => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) move(dx < 0 ? 1 : -1);
+  touchX = null;
+}, { passive: true });
