@@ -15,11 +15,11 @@ if (CONFIGURED) {
   db = getFirestore(app);
 }
 
-// ---------- 夜空背景 ----------
-(function buildSky() {
-  const sky = document.getElementById("sky");
+// ---------- 夜空背景（星星 + 漂浮天燈）----------
+function buildSky(container, starCount, lanternCount) {
+  if (!container) return;
   const frag = document.createDocumentFragment();
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < starCount; i++) {
     const s = document.createElement("div");
     s.className = "star";
     const size = Math.random() * 2.4 + 0.6;
@@ -30,7 +30,7 @@ if (CONFIGURED) {
     s.style.animationDelay = (Math.random() * 4).toFixed(1) + "s";
     frag.appendChild(s);
   }
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < lanternCount; i++) {
     const l = document.createElement("div");
     l.className = "lantern";
     l.style.left = Math.random() * 100 + "%";
@@ -40,8 +40,10 @@ if (CONFIGURED) {
     l.style.transform = `scale(${scale})`;
     frag.appendChild(l);
   }
-  sky.appendChild(frag);
-})();
+  container.appendChild(frag);
+}
+buildSky(document.getElementById("sky"), 90, 10);
+buildSky(document.querySelector("#present .present__sky"), 55, 8);
 
 // ---------- Tab 切換 ----------
 const tabs = document.querySelectorAll(".tab");
