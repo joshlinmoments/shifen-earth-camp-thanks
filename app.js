@@ -388,12 +388,20 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "Escape") closePresent();
 });
 
-// 手機滑動切換
-let touchX = null;
-present.addEventListener("touchstart", (e) => { touchX = e.changedTouches[0].clientX; }, { passive: true });
+// 手機滑動切換：只有「水平位移明顯大於垂直」才算左右切換，
+// 避免看長文往下捲動時被誤判成翻頁。
+let touchX = null, touchY = null;
+present.addEventListener("touchstart", (e) => {
+  touchX = e.changedTouches[0].clientX;
+  touchY = e.changedTouches[0].clientY;
+}, { passive: true });
 present.addEventListener("touchend", (e) => {
   if (touchX === null) return;
   const dx = e.changedTouches[0].clientX - touchX;
-  if (Math.abs(dx) > 50) move(dx < 0 ? 1 : -1);
-  touchX = null;
+  const dy = e.changedTouches[0].clientY - touchY;
+  // 水平距離要 > 60px 且明顯大於垂直距離（1.5 倍），才判定為左右滑動
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    move(dx < 0 ? 1 : -1);
+  }
+  touchX = touchY = null;
 }, { passive: true });
