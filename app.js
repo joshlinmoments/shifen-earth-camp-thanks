@@ -263,6 +263,9 @@ function esc(s) {
   return (s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// 全螢幕（放大）icon — 乾淨的四角展開圖示
+const EXPAND_ICON = `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>`;
+
 // ---------- 表情回饋 ----------
 const REACTIONS = ["❤️", "👍", "🥰", "🙏", "😂"];
 const reactKey = (id, e) => `react:${id}:${e}`;
@@ -321,8 +324,8 @@ function render() {
       ? `<img class="note__photo" src="${esc(d.photoUrl)}" alt="告白照片" loading="lazy" />`
       : "";
     el.innerHTML = `
-      <span class="note__expand" aria-hidden="true">🔍 點我放大</span>
-      <p class="note__to"><small>致</small> ${toIcon}${esc(d.to)}${tag}</p>
+      <span class="note__expand" aria-hidden="true">${EXPAND_ICON}</span>
+      <p class="note__to"><small>TO</small> ${toIcon}${esc(d.to)}${tag}</p>
       <p class="note__msg">${esc(d.message)}</p>
       ${photo}
       <div class="note__foot">

@@ -342,19 +342,16 @@ select.input option { background: #1a1b3a; color: var(--ink); }
 @keyframes pop-in { from { opacity: 0; transform: scale(0.96);} to {opacity:1; transform:none;} }
 .note__expand {
   position: absolute;
-  top: 10px;
+  top: 11px;
   right: 12px;
-  font-size: 0.7rem;
+  display: inline-flex;
   color: var(--amber-glow);
-  background: rgba(255, 160, 70, 0.14);
-  border: 1px solid rgba(255, 200, 120, 0.3);
-  border-radius: 999px;
-  padding: 0.12rem 0.5rem;
-  opacity: 0.85;
+  opacity: 0.7;
   pointer-events: none;
-  transition: opacity 0.2s, background 0.2s;
+  transition: opacity 0.2s, transform 0.2s;
 }
-.note:hover .note__expand { opacity: 1; background: rgba(255, 160, 70, 0.28); }
+.note__expand svg { display: block; }
+.note:hover .note__expand { opacity: 1; transform: scale(1.12); }
 
 .note::before {
   content: "🏮";
@@ -370,7 +367,7 @@ select.input option { background: #1a1b3a; color: var(--ink); }
   color: #fff;
   font-size: 1.1rem;
   margin: 0.4rem 0 0.1rem;
-  padding-right: 5.2rem;
+  padding-right: 2rem;
 }
 .note__to small { font-weight: 400; color: var(--ink-soft); font-size: 0.8rem; }
 .note__tag {
