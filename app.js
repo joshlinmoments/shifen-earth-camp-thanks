@@ -321,6 +321,7 @@ function render() {
       ? `<img class="note__photo" src="${esc(d.photoUrl)}" alt="告白照片" loading="lazy" />`
       : "";
     el.innerHTML = `
+      <span class="note__expand" aria-hidden="true">🔍 點我放大</span>
       <p class="note__to"><small>致</small> ${toIcon}${esc(d.to)}${tag}</p>
       <p class="note__msg">${esc(d.message)}</p>
       ${photo}
